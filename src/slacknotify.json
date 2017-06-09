@@ -1,0 +1,29 @@
+{
+  "devops_team": {
+    "sound": "/System/Library/Sounds/Blow.aiff",
+    "members": [
+      "Joseph Gimenez",
+      "Sam Flint",
+      "Brian Knight",
+      "Edgar Juarez",
+      "Jordan Mance",
+      "Jim Woodward",
+      "Andrew Figaroa",
+      "Duke Nukem"
+    ]
+  },
+  "tier3_team": {
+    "sound": "/System/Library/Sounds/Hero.aiff",
+    "members": [
+      "Josh Huff",
+      "Andrew Mosley"
+    ]
+  },
+  "managers": {
+    "sound": "/System/Library/Sounds/Ping.aiff",
+    "members": [
+      "Jen Boulware",
+      "John Carlson"
+    ]
+  }
+}
