@@ -1,0 +1,28 @@
+{
+    "slack": {
+        "app_id" 25,
+        "notification_details" {
+            "description1": {
+                "sound": "/System/Library/Sounds/Blow.aiff",
+                "find_in_notification": [
+                    "Duke Nukem",
+                    "Person Name"
+                ]
+            },
+            "description2": {
+                "sound": "/System/Library/Sounds/Hero.aiff",
+                "find_in_notification": [
+                    "Person Name1",
+                    "Person Name2"
+                ]
+            },
+            "description3": {
+                "sound": "/System/Library/Sounds/Ping.aiff",
+                "find_in_notification": [
+                    "Person Name1",
+                    "Person Name2"
+                ]
+            }
+        }
+    }
+}
