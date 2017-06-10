@@ -1,19 +1,15 @@
-extern crate serde_json;
 extern crate rusqlite;
 extern crate clap;
 
-use std::{env, thread, time};
+use std::{thread, time};
 use std::process::Command;
-use serde_json::Value;
-use std::path::Path;
-use std::fs::File;
-use std::io::BufReader;
 use rusqlite::Connection;
-use std::io::Write;
+use std::env;
 
 use clap::{Arg, App};
 
 mod notificationcenter;
+mod configuration;
 
 fn main() {
 
@@ -27,34 +23,7 @@ fn main() {
                                .takes_value(true))
                           .get_matches();
 
-
-    let home_dir_path_buffer = match env::home_dir() {
-        Some(path) => path,
-        None => {
-            println!("Couldn't find home directory.");
-            std::process::exit(1);
-        }
-    };
-
-    let home_dir_path = home_dir_path_buffer.to_str().unwrap();
-    let config_file_path = format!("{}/.config/osxnotifysounds/config.json", home_dir_path);
-
-    if !Path::new(&config_file_path).exists() {
-        writeln!(
-            std::io::stderr(),
-            "You don't have a configuration set at {}.\n\
-            Make sure that's in place first, so I know which sounds to use for which notification.",
-            config_file_path
-        ).unwrap();
-        std::process::exit(1);
-    }
-
-    let file = File::open(config_file_path).expect("Json file not found.");
-
-    let file_reader = BufReader::new(file);
-    let config_json: Value =
-        serde_json::from_reader(file_reader)
-            .expect("Couldn't parse json file.  Validate with json linter to confirm.");
+    let config_json = configuration::load();
 
     let tmpdir = env::var("TMPDIR").expect("could not read TMPDIR env variable");
     let notificationcenter_path = format!("{}../0/com.apple.notificationcenter/db/db", tmpdir);
@@ -63,19 +32,16 @@ fn main() {
     if let Some(app_name) = matches.value_of("APP_NAME") {
         let results = notificationcenter::lookup_app_id(app_name, &conn);
         for app_id_result in &results {
-            match *app_id_result {
-                Ok(ref app_result) => {
-                    println!("Application match -- app_id: {}, bundleid: {}",
-                    app_result.app_id,
-                    app_result.bundleid)
-                },
-                Err(_) => ()
-            };
+            if let Ok(ref app_result) = *app_id_result {
+                    println!("Matched application: {} -- app_id: {}",
+                    app_result.bundleid,
+                    app_result.app_id)
+            }
         }
         std::process::exit(0);
     }
 
-    let mut app_notes = notificationcenter::populate_app_notes(config_json, &conn);
+    let mut app_notes = notificationcenter::populate_app_notes(&config_json, &conn);
 
     loop {
         for app_entry in &mut app_notes {
@@ -85,8 +51,8 @@ fn main() {
             for data in app_data {
                 match data {
                     Ok(note_data) => {
-                        let (note_id, encoded_data): (u32, Option<Vec<u8>>) = note_data;
-                        let encoded_data = encoded_data.unwrap();
+                        let notification_data = note_data;
+                        let encoded_data = notification_data.encoded_data;
                         let encoded_data = String::from_utf8_lossy(&encoded_data);
 
                         let note_iter =
@@ -110,7 +76,7 @@ fn main() {
                                 }
                         }
                         // update our latest note counter, so don't play custom sounds on old alerts
-                        app_entry.0 = note_id;
+                        app_entry.0 = notification_data.note_id;
                     }
                     Err(_) => continue,
                 };

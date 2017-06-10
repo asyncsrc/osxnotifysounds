@@ -8,6 +8,11 @@ pub struct AppLookup {
     pub bundleid: String
 }
 
+pub struct NotificationLookup {
+    pub note_id: u32,
+    pub encoded_data: Vec<u8>
+}
+
 fn get_last_note_for_app(app_id: u32, conn: &rusqlite::Connection) -> u32 {
     let query =
         format!(
@@ -22,7 +27,7 @@ fn get_last_note_for_app(app_id: u32, conn: &rusqlite::Connection) -> u32 {
     }
 }
 
-pub fn populate_app_notes(config_json: serde_json::Value, conn: &rusqlite::Connection)
+pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Connection)
     -> Vec<(u32, serde_json::Value)> {
 
     let mut app_notes: Vec<(u32, serde_json::Value)> = Vec::new();
@@ -43,7 +48,7 @@ pub fn populate_app_notes(config_json: serde_json::Value, conn: &rusqlite::Conne
                     .unwrap()
                     .as_u64()
                     .unwrap() as u32,
-                    &conn
+                    conn
             );
             app_notes.push((newest_note, app_details.clone()));
         }
@@ -56,7 +61,7 @@ pub fn get_newest_alerts_for_app (
     newest_note: u32,
     app_id: u32,
     conn: &rusqlite::Connection
-    ) -> Vec<Result<(u32, Option<Vec<u8>>), rusqlite::Error>>
+    ) -> Vec<Result<(NotificationLookup), rusqlite::Error>>
     {
     let mut stmt =
         conn.prepare(
@@ -68,8 +73,12 @@ pub fn get_newest_alerts_for_app (
             )
         ).expect("Could not prepare SQL select statement.");
 
-    let note_iter = stmt.query_map(&[], |row| (row.get(0), row.get(1)))
-        .expect("Could not retrieve query_map results");
+    let note_iter = stmt.query_map(&[], |row| {
+            NotificationLookup {
+                note_id: row.get(0),
+                encoded_data: row.get(1)
+            }
+        }).expect("Could not retrieve query_map results");
 
     note_iter.collect()
 }
@@ -85,8 +94,6 @@ pub fn lookup_app_id (
             app_name
         )
     ).expect("Could not prepare SQL select statement.");
-
-    //conn.query_row(&query, &[], |row| (row.get(0),row.get(1)))
 
     let app_iter = stmt.query_map(&[], |row| {
         AppLookup {
