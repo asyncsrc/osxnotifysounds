@@ -12,7 +12,6 @@ use rusqlite::Connection;
 mod notificationcenter;
 
 fn main() {
-    let mut app_notes: Vec<(u32, serde_json::Value)> = Vec::new();
 
     let path_buffer = match env::home_dir() {
         Some(path) => path,
@@ -44,32 +43,12 @@ fn main() {
     let notificationcenter_path = format!("{}../0/com.apple.notificationcenter/db/db", tmpdir);
     let conn = Connection::open(notificationcenter_path).expect("could not open database");
 
-    let app_iter = config_json
-        .get("applications")
-        .unwrap()
-        .as_array()
-        .expect("applications value is not an array")
-        .iter();
-
-    for app in app_iter {
-        for (_, app_details) in app.as_object().unwrap().iter() {
-            let newest_note =
-                notificationcenter::get_newest_note(
-                    app_details
-                    .get("app_id")
-                    .unwrap()
-                    .as_u64()
-                    .unwrap() as u32,
-                    &conn
-            );
-            app_notes.push((newest_note, app_details.clone()));
-        }
-    }
+    let mut app_notes = notificationcenter::populate_app_notes(config_json, &conn);
 
     loop {
         for app_entry in &mut app_notes {
             let app_id = app_entry.1.get("app_id").unwrap().as_u64().unwrap() as u32;
-            let app_data = notificationcenter::perform_db_lookup(app_entry.0,app_id, &conn);
+            let app_data = notificationcenter::get_newest_alerts_for_app(app_entry.0,app_id, &conn);
 
             for data in app_data {
                 match data {
@@ -82,22 +61,23 @@ fn main() {
                             app_entry.1["notification_details"].as_object() .unwrap().iter();
 
                         for (_, notification_details) in note_iter {
-                            let look_for = notification_details["lookfor"].clone();
+                            let look_for = notification_details["look_for"].clone();
                             let sound = notification_details["sound"].clone();
 
+                            // iterate through each look_for item and see if any are found in alert text
                             if look_for
                                 .as_array()
-                                .expect("'lookfor' json is not an array")
+                                .expect("'look_for' json is not an array")
                                 .iter()
                                 .any(|data| encoded_data.contains(data.as_str().unwrap())) {
-                                Command::new("sh")
+                                    Command::new("sh")
                                     .arg("-c")
                                     .arg(&format!("afplay {}", sound))
                                     .output()
                                     .expect("afplay failed??");
                                 }
                         }
-
+                        // update our latest note counter, so don't play custom sounds on old alerts
                         app_entry.0 = note_id;
                     }
                     Err(_) => continue,
