@@ -44,10 +44,11 @@ pub fn populate_app_notes(config_json: serde_json::Value, conn: &rusqlite::Conne
     app_notes
 }
 
-pub fn get_newest_alerts_for_app<X, Y>(newest_note: u32,
-                               app_id: u32,
-                               conn: &rusqlite::Connection)
-                               -> Vec<Result<(X, Y), rusqlite::Error>>
+pub fn get_newest_alerts_for_app<X, Y>(
+    newest_note: u32,
+    app_id: u32,
+    conn: &rusqlite::Connection
+    ) -> Vec<Result<(X, Y), rusqlite::Error>>
     where X: rusqlite::types::FromSql,
           Y: rusqlite::types::FromSql
 {
