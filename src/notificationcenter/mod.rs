@@ -1,7 +1,6 @@
 extern crate rusqlite;
 extern crate serde_json;
 
-use super::std::io::{Write,stderr};
 use super::std::result::Result;
 
 fn get_last_note_for_app(app_id: u32, conn: &rusqlite::Connection) -> u32 {
@@ -11,14 +10,7 @@ fn get_last_note_for_app(app_id: u32, conn: &rusqlite::Connection) -> u32 {
 
     match conn.query_row(&query, &[], |row| row.get(0)) {
         Ok(entry) =>  entry,
-        Err(err) => {
-            writeln!(&mut stderr(),
-                     "Error occurred: {}.  Waiting for first event for app: {}",
-                     err,
-                     app_id)
-                    .unwrap();
-            0
-        }
+        Err(_) => 0
     }
 }
 
