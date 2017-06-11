@@ -9,7 +9,10 @@ pub fn load() -> serde_json::Value {
     let home_dir_path_buffer = match env::home_dir() {
         Some(path) => path,
         None => {
-            println!("Couldn't find home directory.");
+            writeln!(
+                stderr(),
+                "Couldn't find home directory."
+            ).unwrap();
             process::exit(1);
         }
     };
