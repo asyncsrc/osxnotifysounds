@@ -8,6 +8,10 @@ Currently the program expects to find the config.json file inside `~/.config/osx
 Inside the config, your primary concerns are:
 
 - app_id value
+- look_for values
+- sound value
+
+### App ID
 
 In order to find the app_id for an application you're interested in monitoring, use the '-a' cli argument, e.g.,
 
@@ -16,8 +20,7 @@ In order to find the app_id for an application you're interested in monitoring, 
 Matched application: com.tinyspeck.slackmacgap -- app_id: 25
 ```
 
-- look_for values
-
+### Look For
 The program will do substring matches to confirm whether a value within the look_for list is found in the notification/alert text.  
 
 ```
@@ -34,12 +37,8 @@ Example look_for value:
 
 In this case, Joe Bob would be found in the alert, so the sound value is triggered.
 
-- sound value
+### Sound
+Once a sound is triggered, we'll use `afplay` to attempt to play the sound file.  I've only tested `*.aiff` files, but I'm sure we could make any type of audio file/player work.
 
-the **app_id** needs to match the app_id for the application you'd like to monitor in the notification center
 
-the **look_for** values are what trigger a custom sound if they're found in the particular alert
 
-the **sound** value should point to a playable .aiff file or any other filetype afplay supports
-
-Now you can create a new config entry for this app_id and have custom sounds for it.
