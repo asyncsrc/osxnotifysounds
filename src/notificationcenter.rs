@@ -64,7 +64,7 @@ pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Conn
                         else {
                             return Err(
                                 format!(
-                                    "App id: {} for application: {} must be valid number (i.e., not a string) \
+                                    "App id: {} for application: {} must be a valid number (i.e., not a string) \
                                     and greater than 0",
                                     app_id,
                                     app_name
