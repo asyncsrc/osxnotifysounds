@@ -11,12 +11,13 @@ mod tests {
     #[test]
     fn app_id_missing() {
         let expected_error = "app_id not found for application name: app_name";
-        let file = File::open("src/tests/app_id_missing.json").expect("Json file not found.");
+
+        let file =
+            File::open("src/tests/app_id_missing.json.test")
+                .expect("JSON test file not found.");
+
         let file_reader = BufReader::new(file);
-
-        let config_json = serde_json::from_reader(file_reader)
-            .expect("Couldn't parse json file.  Validate with json linter to confirm.");
-
+        let config_json = serde_json::from_reader(file_reader).unwrap();
         let conn = notificationcenter::open_notificationcenter_db();
         let notes = notificationcenter::populate_app_notes(&config_json, &conn);
 

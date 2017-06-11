@@ -1,0 +1,14 @@
+{
+    "applications": [{
+        "app_name": {
+            "notification_details": {
+                "group": {
+                    "sound": "/System/Library/Sounds/Blow.aiff",
+                    "look_for": [
+                        "text"
+                    ]
+                }
+            }
+        }
+    }]
+}
