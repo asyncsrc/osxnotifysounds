@@ -8,10 +8,14 @@ pub struct AppLookup {
     pub bundleid: String
 }
 
-#[derive(Clone)]
 pub struct NotificationLookup {
     pub note_id: u32,
     pub encoded_data: Vec<u8>
+}
+
+pub struct AppNotes {
+    pub note_id: u32,
+    pub details: serde_json::Value
 }
 
 fn get_last_note_for_app(app_id: u32, conn: &rusqlite::Connection) -> u32 {
@@ -29,9 +33,9 @@ fn get_last_note_for_app(app_id: u32, conn: &rusqlite::Connection) -> u32 {
 }
 
 pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Connection)
-    -> Vec<(u32, serde_json::Value)> {
+    -> Vec<AppNotes> {
 
-    let mut app_notes: Vec<(u32, serde_json::Value)> = Vec::new();
+    let mut app_notes: Vec<AppNotes> = Vec::new();
 
     let app_iter = config_json
         .get("applications")
@@ -51,7 +55,10 @@ pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Conn
                     .unwrap() as u32,
                     conn
             );
-            app_notes.push((newest_note, app_details.clone()));
+            app_notes.push(AppNotes {
+                note_id: newest_note,
+                details: app_details.clone()
+            });
         }
     }
 
