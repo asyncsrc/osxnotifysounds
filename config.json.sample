@@ -1,0 +1,41 @@
+{
+    "applications": [{
+            "slack": {
+                "app_id": 25,
+                "notification_details": {
+                    "devops_team": {
+                        "sound": "/System/Library/Sounds/Blow.aiff",
+                        "look_for": [
+                            "Joseph Gimenez",
+                            "Duke Nukem"
+                        ]
+                    },
+                    "tier3_team": {
+                        "sound": "/System/Library/Sounds/Hero.aiff",
+                        "look_for": [
+                        "Josh H",
+                        "Andrew M",
+                        ]
+                    },
+                    "managers": {
+                        "sound": "/System/Library/Sounds/Ping.aiff",
+                        "look_for": [
+                            "Jen B",
+                            "John C"
+                    ]
+                }
+            }
+        },
+        "osx_mail_client": {
+            "app_id": 3,
+            "notification_details": {
+                "test_emails": {
+                    "sound": "/System/Library/Sounds/Submarine.aiff",
+                    "look_for": [
+                        "test message"
+                    ]
+                }
+            }
+        }
+    }]
+}
