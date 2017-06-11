@@ -8,6 +8,7 @@ pub struct AppLookup {
     pub bundleid: String
 }
 
+#[derive(Clone)]
 pub struct NotificationLookup {
     pub note_id: u32,
     pub encoded_data: Vec<u8>

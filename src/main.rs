@@ -1,12 +1,14 @@
 extern crate rusqlite;
 extern crate clap;
+extern crate rayon;
 
 use std::{thread, time};
 use std::process::Command;
-use rusqlite::Connection;
 use std::env;
 
 use clap::{Arg, App};
+use rusqlite::Connection;
+use rayon::prelude::*;
 
 mod notificationcenter;
 mod configuration;
@@ -46,42 +48,40 @@ fn main() {
     loop {
         for app_entry in &mut app_notes {
             let app_id = app_entry.1.get("app_id").unwrap().as_u64().unwrap() as u32;
-            let app_data = notificationcenter::get_newest_alerts_for_app(app_entry.0,app_id, &conn);
+            let latest_alerts = notificationcenter::get_newest_alerts_for_app(app_entry.0,app_id, &conn);
 
-            for data in app_data {
-                match data {
-                    Ok(note_data) => {
-                        let notification_data = note_data;
-                        let encoded_data = notification_data.encoded_data;
+            for alert in latest_alerts {
+                match alert {
+                    Ok(alert_data) => {
+                        let encoded_data = alert_data.encoded_data;
                         let encoded_data = String::from_utf8_lossy(&encoded_data);
+                        let note_iter : Vec<_> =  app_entry.1["notification_details"].as_object().unwrap().iter().collect();
 
-                        let note_iter =
-                            app_entry.1["notification_details"].as_object() .unwrap().iter();
+                        &note_iter.par_iter()
+                                  .for_each(|&notification_details| {
+                                let notification_details = notification_details.1;
+                                let look_for = &notification_details["look_for"];
+                                let sound = &notification_details["sound"];
 
-                        for (_, notification_details) in note_iter {
-                            let look_for = notification_details["look_for"].clone();
-                            let sound = notification_details["sound"].clone();
-
-                            // iterate through each look_for item and see if any are found in alert text
-                            if look_for
-                                .as_array()
-                                .expect("'look_for' json is not an array")
-                                .iter()
-                                .any(|data| encoded_data.contains(data.as_str().unwrap())) {
-                                    Command::new("sh")
-                                    .arg("-c")
-                                    .arg(&format!("afplay {}", sound))
-                                    .output()
-                                    .expect("afplay failed??");
-                                }
-                        }
+                                // iterate through each look_for item and see if any are found in alert text
+                                if look_for
+                                    .as_array()
+                                    .expect("'look_for' json is not an array")
+                                    .iter()
+                                    .any(|data| encoded_data.contains(data.as_str().unwrap())) {
+                                        Command::new("sh")
+                                        .arg("-c")
+                                        .arg(&format!("afplay {}", sound))
+                                        .output()
+                                        .expect("afplay failed??");
+                                    }
+                                });
                         // update our latest note counter, so don't play custom sounds on old alerts
-                        app_entry.0 = notification_data.note_id;
+                        app_entry.0 = alert_data.note_id;
                     }
                     Err(_) => continue,
                 };
             }
-
             thread::sleep(time::Duration::from_secs(1));
         }
     }
