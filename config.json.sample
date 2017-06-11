@@ -24,18 +24,18 @@
                             "John C"
                         ]
                     }
-            }
-        },
-        "osx_mail_client": {
-            "app_id": 3,
-            "notification_details": {
-                "test_emails": {
-                    "sound": "/System/Library/Sounds/Submarine.aiff",
-                    "look_for": [
-                        "test message"
-                    ]
+                }
+            },
+            "osx_mail_client": {
+                "app_id": 3,
+                "notification_details": {
+                    "test_emails": {
+                        "sound": "/System/Library/Sounds/Submarine.aiff",
+                        "look_for": [
+                            "test message"
+                        ]
+                    }
                 }
             }
-        }
     }]
 }
