@@ -20,6 +20,8 @@ In order to find the app_id for an application you're interested in monitoring, 
 Matched application: com.tinyspeck.slackmacgap -- app_id: 25
 ```
 
+You can now add a new entry to the config.json file for this app and then define the look_for and sound values as desired.
+
 ### Look For
 The program will do substring matches to confirm whether a value within the look_for list is found in the notification/alert text.  
 
