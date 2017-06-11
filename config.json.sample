@@ -13,8 +13,8 @@
                     "tier3_team": {
                         "sound": "/System/Library/Sounds/Hero.aiff",
                         "look_for": [
-                        "Josh H",
-                        "Andrew M",
+                            "Josh H",
+                            "Andrew M",
                         ]
                     },
                     "managers": {
@@ -22,8 +22,8 @@
                         "look_for": [
                             "Jen B",
                             "John C"
-                    ]
-                }
+                        ]
+                    }
             }
         },
         "osx_mail_client": {
