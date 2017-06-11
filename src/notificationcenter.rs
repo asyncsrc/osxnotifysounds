@@ -15,6 +15,7 @@ pub struct NotificationLookup {
     pub encoded_data: Vec<u8>
 }
 
+#[derive(Debug)]
 pub struct AppNotes {
     pub note_id: u32,
     pub details: serde_json::Value
@@ -35,7 +36,7 @@ fn get_last_note_for_app(app_id: u32, conn: &rusqlite::Connection) -> u32 {
 }
 
 pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Connection)
-    -> Vec<AppNotes> {
+    -> Result<Vec<AppNotes>, String> {
 
     let mut app_notes: Vec<AppNotes> = Vec::new();
 
@@ -47,24 +48,38 @@ pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Conn
         .iter();
 
     for app in app_iter {
-        for (_, app_details) in app.as_object().unwrap().iter() {
-            let newest_note =
-                get_last_note_for_app(
-                    app_details
-                    .get("app_id")
-                    .unwrap()
-                    .as_u64()
-                    .unwrap() as u32,
-                    conn
-            );
-            app_notes.push(AppNotes {
-                note_id: newest_note,
-                details: app_details.clone()
-            });
+        if let Some(app) = app.as_object() {
+            for (app_name, app_details) in app {
+                match app_details.get("app_id") {
+                    Some(app_id) => {
+                        if app_id.is_u64() {
+                            let app_id = app_id.as_u64().unwrap();
+                            app_notes.push(
+                                AppNotes {
+                                    note_id: get_last_note_for_app(app_id as u32, conn),
+                                    details: app_details.clone()
+                                }
+                            );
+                        }
+                        else {
+                            return Err(
+                                format!(
+                                    "App id: {} for application: {} must be valid number (i.e., not a string) \
+                                    and greater than 0",
+                                    app_id,
+                                    app_name
+                                )
+                            );
+                        }
+                    },
+                    None => return Err(
+                        format!("app_id not found for application name: {}", app_name)
+                    )
+                }
+            }
         }
     }
-
-    app_notes
+    Ok(app_notes)
 }
 
 pub fn get_newest_alerts_for_app (

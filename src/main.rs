@@ -4,12 +4,14 @@ extern crate rayon;
 
 use std::{thread, time};
 use std::process::Command;
+use std::io::{stderr,Write};
 
 use clap::{Arg, App};
 use rayon::prelude::*;
 
 mod notificationcenter;
 mod configuration;
+mod tests;
 
 fn show_matching_applications(app_name: &str, conn: &rusqlite::Connection) {
     let results = notificationcenter::lookup_app_id(app_name, conn);
@@ -41,7 +43,15 @@ fn main() {
         std::process::exit(0);
     }
 
-    let mut app_notes = notificationcenter::populate_app_notes(&config_json, &conn);
+    let app_notes = notificationcenter::populate_app_notes(&config_json, &conn);
+
+    let mut app_notes = match app_notes {
+        Ok(app_notes) => app_notes,
+        Err(err) => {
+            writeln!(stderr(), "{}", err).unwrap();
+            std::process::exit(1);
+        }
+    };
 
     loop {
         for app_entry in &mut app_notes {
