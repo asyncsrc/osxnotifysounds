@@ -4,10 +4,8 @@ extern crate rayon;
 
 use std::{thread, time};
 use std::process::Command;
-use std::env;
 
 use clap::{Arg, App};
-use rusqlite::Connection;
 use rayon::prelude::*;
 
 mod notificationcenter;
@@ -25,7 +23,6 @@ fn show_matching_applications(app_name: &str, conn: &rusqlite::Connection) {
 }
 
 fn main() {
-
     let matches = App::new("osxnotifysounds")
                           .version("1.0")
                           .author("Joseph Gimenez <joseph.gimenez@snagajob.com>")
@@ -37,10 +34,7 @@ fn main() {
                           .get_matches();
 
     let config_json = configuration::load();
-
-    let tmpdir = env::var("TMPDIR").expect("could not read TMPDIR env variable");
-    let notificationcenter_path = format!("{}../0/com.apple.notificationcenter/db/db", tmpdir);
-    let conn = Connection::open(notificationcenter_path).expect("could not open database");
+    let conn = notificationcenter::open_notificationcenter_db();
 
     if let Some(app_name) = matches.value_of("APP_NAME") {
         show_matching_applications(app_name, &conn);

@@ -1,7 +1,9 @@
 extern crate rusqlite;
 extern crate serde_json;
 
-use super::std::result::Result;
+use std::result::Result;
+use rusqlite::Connection;
+use std::env;
 
 pub struct AppLookup {
     pub app_id: u32,
@@ -89,6 +91,12 @@ pub fn get_newest_alerts_for_app (
         }).expect("Could not retrieve query_map results");
 
     note_iter.collect()
+}
+
+pub fn open_notificationcenter_db() -> rusqlite::Connection {
+    let tmpdir = env::var("TMPDIR").expect("could not read TMPDIR env variable");
+    let notificationcenter_path = format!("{}../0/com.apple.notificationcenter/db/db", tmpdir);
+    Connection::open(notificationcenter_path).expect("could not open database")
 }
 
 pub fn lookup_app_id (
