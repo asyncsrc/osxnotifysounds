@@ -44,7 +44,7 @@ pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Conn
         .get("applications")
         .unwrap()
         .as_array()
-        .expect("applications value is not an array")
+        .expect("applications value is not an array/list within [ ] brackets")
         .iter();
 
     for app in app_iter {
@@ -108,10 +108,13 @@ pub fn get_newest_alerts_for_app (
     note_iter.collect()
 }
 
-pub fn open_notificationcenter_db() -> rusqlite::Connection {
-    let tmpdir = env::var("TMPDIR").expect("could not read TMPDIR env variable");
-    let notificationcenter_path = format!("{}../0/com.apple.notificationcenter/db/db", tmpdir);
-    Connection::open(notificationcenter_path).expect("could not open database")
+pub fn open_notificationcenter_db() -> Result<rusqlite::Connection, String> {
+     env::var("TMPDIR")
+     .map_err(|err| err.to_string())
+     .and_then(|path| {
+        let nc_path = format!("{}../0/com.apple.notificationcenter/db/db", path);
+        Connection::open(nc_path).map_err(|err| err.to_string())
+    })
 }
 
 pub fn lookup_app_id (

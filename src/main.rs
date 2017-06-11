@@ -36,7 +36,14 @@ fn main() {
                           .get_matches();
 
     let config_json = configuration::load();
-    let conn = notificationcenter::open_notificationcenter_db();
+
+    let conn = match notificationcenter::open_notificationcenter_db() {
+        Ok(conn) => conn,
+        Err(err) => {
+            writeln!(stderr(), "{}", err).unwrap();
+            std::process::exit(1);
+        }
+    };
 
     if let Some(app_name) = matches.value_of("APP_NAME") {
         show_matching_applications(app_name, &conn);
