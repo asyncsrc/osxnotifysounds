@@ -1,11 +1,11 @@
 # osxnotifysounds
 
-For my own personal interest, I thought it'd be nice to have custom notification sounds for any application.
-This initially was specifically for Slack, but I've expanded the config to support any number of different applications that use the OSX notification center for sending alerts.
+I thought it'd be nice to have custom notification sounds for any application.
 
 Currently the program expects to find the config.json file inside `~/.config/osxnotifysounds/config.json`
 
 Inside the config, your primary concerns are:
+
 - app_id value
 - look_for values
 - sound value
