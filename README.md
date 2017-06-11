@@ -1,6 +1,14 @@
 # osxnotifysounds
-
 I thought it'd be nice to have custom notification sounds for any application.
+
+## Building
+Below steps can be used to build the Rust osxnotifysounds binary.
+
+```
+git clone https://github.com/asyncsrc/osxnotifysounds
+cd osxnotifysounds
+cargo build --release
+```
 
 ## Running
 Currently the program expects to find the config.json file inside `~/.config/osxnotifysounds/config.json`
