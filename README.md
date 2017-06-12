@@ -1,8 +1,8 @@
 # osxnotifysounds
-I thought it'd be nice to have custom notification sounds for any application.
+I thought it'd be nice to have custom sounds for any application that pushes events/alerts to the OSX notification center.
 
 ## Building
-Below steps can be used to build the Rust osxnotifysounds binary.
+Below steps can be used to build the binary.
 
 ```
 git clone https://github.com/asyncsrc/osxnotifysounds
