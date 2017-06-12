@@ -51,7 +51,8 @@ pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Conn
     let app_iter = config_json
         .get("applications")
         .and_then(|app| app.as_array())
-        .ok_or("applications section of config does not appear to be an array")?;
+        .ok_or("applications section of config does not appear to be an array\
+        , or it does not exist at all.")?;
 
     for app in app_iter {
         if let Some(obj) = app.as_object() {
@@ -71,7 +72,7 @@ pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Conn
             }
         }
     }
-
+    println!("Detail gathering complete.");
     Ok(app_notes)
 }
 

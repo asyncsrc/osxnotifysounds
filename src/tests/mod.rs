@@ -16,8 +16,10 @@ mod tests {
 
         for file_topic in files {
             let file_path = format!("src/tests/app_id_{}.json.test", file_topic);
-            let file = File::open(file_path);
-            let notes = get_json_object(&file.expect("couldn't open json test file"));
+            let file = File::open(&file_path)
+                            .expect(&format!("couldn't open json test file: {}", &file_path));
+
+            let notes = get_json_object(&file);
             validate_response(notes, expected_error);
         }
     }

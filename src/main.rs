@@ -60,6 +60,8 @@ fn main() {
         }
     };
 
+    println!("\nWaiting for new events that match your configuration...");
+
     loop {
         for app_entry in &mut app_notes {
             let app_id = app_entry.details.get("app_id").unwrap().as_u64().unwrap() as u32;
