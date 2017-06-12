@@ -64,9 +64,12 @@ fn main() {
 
     loop {
         for app_entry in &mut app_notes {
-            let app_id = app_entry.details.get("app_id").unwrap().as_u64().unwrap() as u32;
             let latest_alerts =
-                notificationcenter::get_newest_alerts_for_app(app_entry.note_id,app_id, &conn);
+                notificationcenter::get_newest_alerts_for_app(
+                    app_entry.note_id,
+                    app_entry.app_id,
+                    &conn
+            );
 
             for alert in latest_alerts {
                 match alert {

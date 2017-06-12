@@ -17,6 +17,7 @@ pub struct NotificationLookup {
 
 #[derive(Debug)]
 pub struct AppNotes {
+    pub app_id: u32,
     pub note_id: u32,
     pub details: serde_json::Value
 }
@@ -57,13 +58,15 @@ pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Conn
     for app in app_iter {
         if let Some(obj) = app.as_object() {
             for (name, details) in obj {
-                println!("Gather details for app: {}", name);
+                print!("Gathering details for app: {}. ", name);
                 details.get("app_id")
                 .and_then(|id| id.as_u64())
-                .ok_or("Could not map app_id inside config to positive integer".to_string())
+                .ok_or_else(|| "Could not map app_id inside config to positive integer".to_string())
                 .map(|id| {
+                    println!("Found app_id: {}", id);
                     app_notes.push(
                         AppNotes {
+                            app_id: id as u32,
                             note_id: get_last_note_for_app(id as u32, conn),
                             details: details.clone()
                         }
