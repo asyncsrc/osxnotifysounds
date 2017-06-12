@@ -10,40 +10,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn app_id_missing() {
-        let expected_error = "app_id not found for application name: app_name";
+    fn app_id_invalid() {
+        let expected_error = "Could not map app_id inside config to positive integer";
+        let files = vec!["negative", "string", "missing"];
 
-        let file = File::open("src/tests/app_id_missing.json.test")
-                        .expect("JSON test file not found.");
-
-        let notes = get_json_object(&file);
-        validate_response(notes, expected_error);
-    }
-
-    #[test]
-    fn app_id_negative() {
-        let expected_error = "App id: -24 for application: app_name must be a valid number \
-                             (i.e., not a string) and greater than 0";
-
-        let file =
-            File::open("src/tests/app_id_negative.json.test")
-                .expect("JSON test file not found.");
-
-        let notes = get_json_object(&file);
-        validate_response(notes, expected_error);
-    }
-
-    #[test]
-    fn app_id_string() {
-        let expected_error = "App id: \"24\" for application: app_name must be a valid number \
-                             (i.e., not a string) and greater than 0";
-
-        let file =
-            File::open("src/tests/app_id_string.json.test")
-                .expect("JSON test file not found.");
-
-        let notes = get_json_object(&file);
-        validate_response(notes, expected_error);
+        for file_topic in files {
+            let file_path = format!("src/tests/app_id_{}.json.test", file_topic);
+            let file = File::open(file_path);
+            let notes = get_json_object(&file.expect("couldn't open json test file"));
+            validate_response(notes, expected_error);
+        }
     }
 
     fn validate_response<T>(notes: Result<T,String>, expected_error: &str)

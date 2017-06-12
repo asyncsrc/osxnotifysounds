@@ -34,6 +34,14 @@ fn get_last_note_for_app(app_id: u32, conn: &rusqlite::Connection) -> u32 {
         Err(_) => 0
     }
 }
+pub fn open_notificationcenter_db() -> Result<rusqlite::Connection, String> {
+     env::var("TMPDIR")
+     .map_err(|err| err.to_string())
+     .and_then(|path| {
+        let nc_path = format!("{}../0/com.apple.notificationcenter/db/db", path);
+        Connection::open(nc_path).map_err(|err| err.to_string())
+    })
+}
 
 pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Connection)
     -> Result<Vec<AppNotes>, String> {
@@ -42,43 +50,28 @@ pub fn populate_app_notes(config_json: &serde_json::Value, conn: &rusqlite::Conn
 
     let app_iter = config_json
         .get("applications")
-        .unwrap()
-        .as_array()
-        .expect("applications value is not an array/list within [ ] brackets")
-        .iter();
+        .and_then(|app| app.as_array())
+        .ok_or("applications section of config does not appear to be an array")?;
 
     for app in app_iter {
-        if let Some(app) = app.as_object() {
-            for (app_name, app_details) in app {
-                match app_details.get("app_id") {
-                    Some(app_id) => {
-                        if app_id.is_u64() {
-                            let app_id = app_id.as_u64().unwrap();
-                            app_notes.push(
-                                AppNotes {
-                                    note_id: get_last_note_for_app(app_id as u32, conn),
-                                    details: app_details.clone()
-                                }
-                            );
+        if let Some(obj) = app.as_object() {
+            for (name, details) in obj {
+                println!("Gather details for app: {}", name);
+                details.get("app_id")
+                .and_then(|id| id.as_u64())
+                .ok_or("Could not map app_id inside config to positive integer".to_string())
+                .map(|id| {
+                    app_notes.push(
+                        AppNotes {
+                            note_id: get_last_note_for_app(id as u32, conn),
+                            details: details.clone()
                         }
-                        else {
-                            return Err(
-                                format!(
-                                    "App id: {} for application: {} must be a valid number (i.e., not a string) \
-                                    and greater than 0",
-                                    app_id,
-                                    app_name
-                                )
-                            );
-                        }
-                    },
-                    None => return Err(
-                        format!("app_id not found for application name: {}", app_name)
                     )
-                }
+                })?;
             }
         }
     }
+
     Ok(app_notes)
 }
 
@@ -106,15 +99,6 @@ pub fn get_newest_alerts_for_app (
         }).expect("Could not retrieve query_map results");
 
     note_iter.collect()
-}
-
-pub fn open_notificationcenter_db() -> Result<rusqlite::Connection, String> {
-     env::var("TMPDIR")
-     .map_err(|err| err.to_string())
-     .and_then(|path| {
-        let nc_path = format!("{}../0/com.apple.notificationcenter/db/db", path);
-        Connection::open(nc_path).map_err(|err| err.to_string())
-    })
 }
 
 pub fn lookup_app_id (
