@@ -10,6 +10,20 @@ cd osxnotifysounds
 cargo build --release
 ```
 
+## Tests
+Test coverage is weak at the moment as I'm only validating one field in the json config file so far. But here we are!
+
+```
+cargo test
+
+[...]
+
+running 1 test
+test tests::tests::app_id_invalid ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
+```
+
 ## Running
 Currently the program expects to find the config.json file inside `~/.config/osxnotifysounds/config.json`
 
