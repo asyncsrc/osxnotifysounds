@@ -1,13 +1,16 @@
 # osxnotifysounds
 I thought it'd be nice to have custom sounds for any application that pushes events/alerts to the OSX notification center.
 
-## Building
+## Building and Running
 Below steps can be used to build the binary.
 
 ```
 git clone https://github.com/asyncsrc/osxnotifysounds
 cd osxnotifysounds
 cargo build --release
+
+mkdir -p ~/.config/osxnotifysounds
+cp config.json.sample ~/.config/osxnotifysounds/config.json
 ```
 
 ## Tests
@@ -24,10 +27,9 @@ test tests::tests::app_id_invalid ... ok
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ```
 
-## Running
-Currently the program expects to find the config.json file inside `~/.config/osxnotifysounds/config.json`
+## Configuration
 
-Inside the config, your primary concerns are:
+Inside the config file at `~/.config/osxnotifysounds/config.json`, your primary concerns are:
 
 - app_id value
 - look_for values
